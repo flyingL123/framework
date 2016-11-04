@@ -2806,7 +2806,8 @@ abstract class Model implements ArrayAccess, ArrayableInterface, JsonableInterfa
 				$dirty[$key] = $value;
 			}
 			elseif ($value !== $this->original[$key] &&
-                                 ! $this->originalIsNumericallyEquivalent($key))
+                                 ! $this->originalIsNumericallyEquivalent($key) &&
+			         ! $this->originalIsBooleanEquivalent($key))
 			{
 				$dirty[$key] = $value;
 			}
@@ -2828,6 +2829,19 @@ abstract class Model implements ArrayAccess, ArrayableInterface, JsonableInterfa
 		$original = $this->original[$key];
 
 		return is_numeric($current) && is_numeric($original) && strcmp((string) $current, (string) $original) === 0;
+	}
+	
+	/**
+	* Determine if the new and old values are equivalent boolean values only if the current
+	* value is literal true or false.
+	*/
+	protected function originalIsBooleanEquivalent($key)
+	{
+		$current = $this->attributes[$key];
+
+		$original = $this->original[$key];
+
+		return ($current === true || $current === false) && (bool) $current === (bool) $original;
 	}
 
 	/**
